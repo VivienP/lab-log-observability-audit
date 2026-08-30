@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 import zipfile
 from pathlib import Path
 
@@ -271,3 +272,38 @@ def test_committed_notebook_has_current_outputs() -> None:
     assert f"{original['matched_actions']} / {original['total_actions']}" in rendered
     assert f"{null['observed_matched']}/{null['analysed_recoveries']}" in rendered
     assert f"{null['ratio_observed_over_expected']:.2f}x" in rendered
+
+
+# A markdown cell that opens with one of these is a code cell pasted into prose.
+_PYTHON_OPENER = re.compile(r"^\s*(?:print\(|import\s|from\s+\w+\s+import\s|def\s|class\s)")
+
+
+def test_committed_notebook_structure_is_intact() -> None:
+    """Guard the notebook prose, not just its outputs.
+
+    Rebuilding the notebook from a stale cell index once clobbered the closing
+    "Derived records" and "Limitations" sections, replacing one with a duplicate
+    heading and the other with raw Python rendered as prose. The output checks all
+    still passed, because none of them looks at the markdown.
+    """
+    root = Path(__file__).resolve().parents[1]
+    notebook = json.loads((root / "notebooks" / "audit.ipynb").read_text(encoding="utf-8"))
+    markdown = [
+        "".join(cell["source"]).strip()
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "markdown"
+    ]
+
+    assert markdown, "notebook has no prose"
+    for text in markdown:
+        first_line = text.splitlines()[0] if text else ""
+        assert not _PYTHON_OPENER.match(first_line), f"code pasted into a markdown cell: {first_line!r}"
+
+    headings = [text.splitlines()[0] for text in markdown if text.startswith("#")]
+    assert len(headings) == len(set(headings)), "duplicate heading in the notebook"
+
+    numbered = [int(match.group(1)) for match in (re.match(r"## (\d+)\.", h) for h in headings) if match]
+    assert numbered == list(range(1, len(numbered) + 1)), f"section numbering is not sequential: {numbered}"
+    # The closing caveats are the point of the document; losing them is a defect.
+    assert any(h.startswith("## 8. Derived records") for h in headings)
+    assert any(h.startswith("## 9. Limitations") for h in headings)
