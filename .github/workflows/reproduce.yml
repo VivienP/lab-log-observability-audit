@@ -1,0 +1,32 @@
+name: Reproducibility checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install uv and Python 3.12
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Run synthetic and committed-artifact tests
+        run: uv run --frozen python -m pytest
+
+      # Full source-data reproduction is intentionally not run here: the
+      # pinned upstream archives are not redistributed in this repository.
+      # A green job therefore does not mean the real-data audit was reproduced.
+

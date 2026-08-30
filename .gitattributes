@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.zip binary
+*.xlsx binary
+*.ipynb text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+

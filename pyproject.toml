@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lab-log-observability-audit"
+version = "0.1.0"
+description = "Reproducible audit of action-linked physical evidence in laboratory automation logs."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Vivien Perrelle" }]
+dependencies = ["PyYAML>=6.0,<7"]
+
+[dependency-groups]
+dev = [
+  "ipykernel>=6.29,<7",
+  "jupyter>=1.1,<2",
+  "pytest>=8.3,<9",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lab_log_audit"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
