@@ -9,6 +9,7 @@ import pytest
 from lab_log_audit.load import (
     InputFormatError,
     _category,
+    anomaly_census,
     load_batch_distillation,
     load_chemspeed_archive,
     parse_chemspeed_eventlog,
@@ -243,3 +244,36 @@ def test_event_category_normalises_source_spelling_variants(
     raw_property: str, expected: str
 ) -> None:
     assert _category(raw_property) == expected
+
+
+def test_anomaly_census_counts_records_the_recovery_filter_drops(tmp_path: Path) -> None:
+    """The census must see records with no recovery action and no anomaly class."""
+    metadata = tmp_path / "metadata.zip"
+    _write_zip(
+        metadata,
+        {
+            "metadata/Operation/mix/op/exp.yaml": """
+anomalies:
+  - class: ConfirmedAnomaly
+    id: A1
+    hasRecoveryAction: restore
+  - class: ConfirmedAnomaly
+    id: A1
+    hasRecoveryAction: restore
+  - class: Anomaly
+    id: A2
+  - class: None
+    id: A3
+"""
+        },
+    )
+
+    census = anomaly_census(metadata)
+
+    # A1 is deduplicated; A2 has no recovery action and A3 no class, so neither
+    # reaches load_batch_distillation, yet both are real records.
+    assert census["deduplicated_total"] == 3
+    assert census["with_anomaly_class"] == 2
+    assert census["without_anomaly_class"] == 1
+    assert census["confirmed_anomaly"] == 1
+    assert census["by_class"] == {"Anomaly": 1, "ConfirmedAnomaly": 1, "None": 1}

@@ -203,11 +203,23 @@
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_001::OP014TA001A001",
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_023/test_anormal_experiment_002::OP023TA002A001"
       ],
+      "anomaly_records": {
+        "by_class": {
+          "Anomaly": 100,
+          "ConfirmedAnomaly": 137,
+          "None": 19
+        },
+        "confirmed_anomaly": 137,
+        "deduplicated_total": 256,
+        "with_anomaly_class": 237,
+        "without_anomaly_class": 19
+      },
       "excluded_source_records": [
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A002",
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A004"
       ],
       "excluded_without_operation_log": 2,
+      "experiments_with_operation_log": 106,
       "included_with_operation_log": 79,
       "metadata_labelled_recoveries": 81,
       "unparseable_event_timestamps": 43

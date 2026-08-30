@@ -6,7 +6,7 @@ import csv
 import io
 import re
 import zipfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -371,6 +371,43 @@ def _load_recoveries(archive: zipfile.ZipFile) -> tuple[Recovery, ...]:
             )
         )
     return tuple(recoveries)
+
+
+def anomaly_census(metadata_archive: Path) -> dict[str, object]:
+    """Count deduplicated anomaly records by class, before the recovery filter.
+
+    The recovery loader keeps only entries that carry a recovery action, so these
+    counts cannot be derived from its output. Records are deduplicated on the same
+    ``(experiment, class, anomaly_id)`` identity the loader uses. Entries whose class
+    is absent or the literal string ``"None"`` are reported separately instead of
+    being silently dropped, because they are records that carry no anomaly class.
+    """
+    identities: set[tuple[str, str, str]] = set()
+    by_class: Counter[str] = Counter()
+    with zipfile.ZipFile(metadata_archive) as archive:
+        for member in sorted(name for name in archive.namelist() if name.lower().endswith(".yaml")):
+            experiment = _experiment_key(member)
+            data = yaml.safe_load(archive.read(member).decode("utf-8")) or {}
+            entries = data.get("anomalies") or []
+            if not isinstance(entries, list):
+                raise InputFormatError(f"{member}: anomalies must be a list")
+            for entry in entries:
+                if not entry:
+                    continue
+                class_name = str(entry.get("class"))
+                identity = (experiment, class_name, str(entry.get("id")))
+                if identity in identities:
+                    continue
+                identities.add(identity)
+                by_class[class_name] += 1
+    without_class = by_class.get("None", 0)
+    return {
+        "deduplicated_total": len(identities),
+        "with_anomaly_class": len(identities) - without_class,
+        "without_anomaly_class": without_class,
+        "confirmed_anomaly": by_class.get("ConfirmedAnomaly", 0),
+        "by_class": dict(sorted(by_class.items())),
+    }
 
 
 def load_batch_distillation(

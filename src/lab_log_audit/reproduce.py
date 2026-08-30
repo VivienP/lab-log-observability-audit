@@ -18,7 +18,14 @@ from .background import (
     observable_interval,
 )
 from .figures import render_background_figure
-from .load import ChemspeedAudit, Event, Recovery, load_batch_distillation, load_chemspeed_archive
+from .load import (
+    ChemspeedAudit,
+    Event,
+    Recovery,
+    anomaly_census,
+    load_batch_distillation,
+    load_chemspeed_archive,
+)
 from .matching import RecoveryMatch, Window, match_all, parse_time_of_day
 from .metrics import chemspeed_metrics, recovery_metrics
 from .provenance import sha256_file, verify_file
@@ -326,6 +333,7 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
     _check_invariants(manifest.get("expected_metrics", {}), actual_invariants)
     nulls = _run_null_variants(recoveries, events)
     outside_interval = anchors_outside_observable_interval(recoveries, events)
+    census = anomaly_census(paths["batch_metadata"])
 
     metrics: dict[str, object] = {
         "schema_version": 2,
@@ -336,6 +344,8 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
         "chemspeed": chemspeed,
         "batch_distillation": {
             "inclusion": {
+                "experiments_with_operation_log": len(events),
+                "anomaly_records": census,
                 "metadata_labelled_recoveries": len(recoveries) + len(excluded_recoveries),
                 "included_with_operation_log": len(recoveries),
                 "excluded_without_operation_log": len(excluded_recoveries),

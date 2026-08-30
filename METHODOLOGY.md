@@ -57,6 +57,11 @@ second one only.
 - Source metadata contains 81 labelled recoveries. Two belong to one experiment for
   which the pinned release ships no operation-log file, so they are excluded by name in
   `results/metrics.json`. The analysed denominator is 79.
+- `inclusion.anomaly_records` reports the wider census the recovery filter discards:
+  256 deduplicated records, of which 237 carry an anomaly class (137 of them
+  `ConfirmedAnomaly`) and 19 carry none. `inclusion.experiments_with_operation_log`
+  reports the 106 experiments the operation-log archive covers. These situate the
+  subset the audit works on; no metric is computed from them.
 
 ## 5. Temporal windows and the coverage definition
 

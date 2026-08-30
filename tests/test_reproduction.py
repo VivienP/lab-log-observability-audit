@@ -206,6 +206,17 @@ def test_committed_background_null_is_internally_consistent() -> None:
     assert inclusion["anchored_outside_observable_log_interval"] == 5
     assert len(inclusion["anchored_outside_source_records"]) == 5
 
+    # Counts the companion article quotes, so they stay verifiable from the repo.
+    census = inclusion["anomaly_records"]
+    assert inclusion["experiments_with_operation_log"] == 106
+    assert census["deduplicated_total"] == 256
+    assert census["with_anomaly_class"] == 237
+    assert census["confirmed_anomaly"] == 137
+    assert census["with_anomaly_class"] + census["without_anomaly_class"] == census[
+        "deduplicated_total"
+    ]
+    assert sum(census["by_class"].values()) == census["deduplicated_total"]
+
     for entry in null["windows"]:
         # The comparison denominator is the 79 included recoveries minus the ones
         # the operation log never covers, and it must not drift between windows.
