@@ -23,7 +23,9 @@ def main() -> int:
     print("Verifying dataset archives...")
     metrics = reproduce(args.manifest, args.data_dir, args.results_dir, args.derived_dir)
     actions = metrics["chemspeed"]["actions"]
-    recoveries = metrics["batch_distillation"]["original_window"]
+    batch = metrics["batch_distillation"]
+    recoveries = batch["original_window"]
+    null = batch["background_null"]["windows"][0]
     print("Dataset verified")
     print(f"Actions parsed: {actions['total']}")
     print(
@@ -32,6 +34,15 @@ def main() -> int:
     )
     print("Metrics regenerated")
     print("Sensitivity analysis regenerated")
+    print(
+        "Background null regenerated: observed "
+        f"{null['observed_matched']} / {null['analysed_recoveries']} "
+        f"= {null['observed_fraction']:.2%} vs random-anchor background "
+        f"{null['expected_fraction']:.2%} "
+        f"(ratio {null['ratio_observed_over_expected']:.2f}x, "
+        f"empirical p = {null['empirical_p_value']:.4f})"
+    )
+    print("Figure regenerated")
     print(f"Results written to {args.results_dir}")
     print("Reproduction successful")
     return 0

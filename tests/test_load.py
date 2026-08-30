@@ -8,6 +8,7 @@ import pytest
 
 from lab_log_audit.load import (
     InputFormatError,
+    _category,
     load_batch_distillation,
     load_chemspeed_archive,
     parse_chemspeed_eventlog,
@@ -213,3 +214,32 @@ anomalies:
 
     assert [item.anomaly_id for item in recoveries] == ["INCLUDED"]
     assert [item.anomaly_id for item in excluded] == ["EXCLUDED"]
+
+
+@pytest.mark.parametrize(
+    ("raw_property", "expected"),
+    [
+        # Both source spellings of the same event must land in one category. Matching
+        # the raw text used to send "emergency _stop" and "Automatic mode active" to
+        # "other", which would mislead anyone filtering on event_category.
+        ("Emergency Stop", "emergency_stop"),
+        ("emergency _stop", "emergency_stop"),
+        ("Automatic mode active", "automatic_mode"),
+        ("AV8 back to automatic mode", "automatic_mode"),
+        ("Extraction Pumps back to automatic mode.", "automatic_mode"),
+        ("Manual mode active", "manual_mode"),
+        ("Changed value P702", "changed_value"),
+        ("changed_value_AV709", "changed_value"),
+        ("Start process clicked", "start_process"),
+        ("Stop process clicked", "stop_process"),
+        ("Critical", "critical"),
+        ("Warning", "warning"),
+        ("Executing step", "other"),
+        ("P301 new step", "other"),
+        ("", "other"),
+    ],
+)
+def test_event_category_normalises_source_spelling_variants(
+    raw_property: str, expected: str
+) -> None:
+    assert _category(raw_property) == expected

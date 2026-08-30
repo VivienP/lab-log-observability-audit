@@ -8,12 +8,31 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .load import ChemspeedAudit, load_batch_distillation, load_chemspeed_archive
+from .background import (
+    NULL_ITERATIONS,
+    NULL_SEED,
+    NullSummary,
+    anchors_outside_observable_interval,
+    background_null,
+    event_seconds,
+    observable_interval,
+)
+from .figures import render_background_figure
+from .load import ChemspeedAudit, Event, Recovery, load_batch_distillation, load_chemspeed_archive
 from .matching import RecoveryMatch, Window, match_all, parse_time_of_day
 from .metrics import chemspeed_metrics, recovery_metrics
 from .provenance import sha256_file, verify_file
 
 WINDOWS = (Window(60, 120), Window(300, 300), Window(600, 600))
+
+PRIMARY_NULL_VARIANT = ("interior", "independent")
+NULL_VARIANTS = (
+    PRIMARY_NULL_VARIANT,
+    ("interior", "experiment_shift"),
+    ("full_interval", "independent"),
+    ("full_interval", "experiment_shift"),
+)
+BACKGROUND_FIGURE_NAME = "figures/recovery_activity_vs_background.png"
 
 
 def _load_manifest(path: Path) -> dict[str, Any]:
@@ -95,7 +114,13 @@ def _observation_id(*parts: object) -> str:
 
 
 def _write_result_checksums(results_dir: Path) -> None:
-    names = ("metrics.json", "recovery_windows.csv", "window_sensitivity.csv")
+    names = (
+        BACKGROUND_FIGURE_NAME,
+        "background_null.csv",
+        "metrics.json",
+        "recovery_windows.csv",
+        "window_sensitivity.csv",
+    )
     lines = [f"{sha256_file(results_dir / name)}  {name}" for name in names]
     (results_dir / "SHA256SUMS.txt").write_text(
         "\n".join(lines) + "\n", encoding="utf-8", newline="\n"
@@ -151,9 +176,20 @@ def _write_transfer_observations(path: Path, audit: ChemspeedAudit) -> None:
     )
 
 
-def _write_recovery_windows(path: Path, matches: tuple[RecoveryMatch, ...]) -> None:
+def _write_recovery_windows(
+    path: Path,
+    matches: tuple[RecoveryMatch, ...],
+    events: dict[str, tuple[Event, ...]],
+) -> None:
     rows: list[dict[str, object]] = []
     for match in matches:
+        interval = observable_interval(event_seconds(events[match.recovery.experiment]))
+        anchor = parse_time_of_day(match.recovery.anchor_time)
+        within = (
+            interval is not None
+            and anchor is not None
+            and interval[0] <= anchor <= interval[1]
+        )
         rows.append(
             {
                 "observation_id": _observation_id(
@@ -169,6 +205,7 @@ def _write_recovery_windows(path: Path, matches: tuple[RecoveryMatch, ...]) -> N
                 "source_reference": match.recovery.experiment,
                 "anchor_source": match.recovery.anchor_source,
                 "recovery_action": match.recovery.recovery_action,
+                "anchor_within_observable_log_interval": str(within).lower(),
                 "pre_window_seconds": match.window.pre_seconds,
                 "post_window_seconds": match.window.post_seconds,
                 "matched_event_count": len(match.events),
@@ -190,6 +227,7 @@ def _write_recovery_windows(path: Path, matches: tuple[RecoveryMatch, ...]) -> N
             "source_reference",
             "anchor_source",
             "recovery_action",
+            "anchor_within_observable_log_interval",
             "pre_window_seconds",
             "post_window_seconds",
             "matched_event_count",
@@ -198,6 +236,75 @@ def _write_recovery_windows(path: Path, matches: tuple[RecoveryMatch, ...]) -> N
         ],
         rows,
     )
+
+
+def _run_null_variants(
+    recoveries: tuple[Recovery, ...],
+    events: dict[str, tuple[Event, ...]],
+) -> dict[tuple[int, int, str, str], NullSummary]:
+    return {
+        (window.pre_seconds, window.post_seconds, domain_mode, resampling): background_null(
+            recoveries,
+            events,
+            window,
+            anchor_domain_mode=domain_mode,
+            resampling=resampling,
+        )
+        for window in WINDOWS
+        for domain_mode, resampling in NULL_VARIANTS
+    }
+
+
+def _null_row(summary: NullSummary, *, is_primary: bool) -> dict[str, object]:
+    ratio = summary.ratio_observed_over_expected
+    return {
+        "pre_window_seconds": summary.pre_window_seconds,
+        "post_window_seconds": summary.post_window_seconds,
+        "anchor_domain_mode": summary.anchor_domain_mode,
+        "resampling": summary.resampling,
+        "variant_role": "primary" if is_primary else "sensitivity",
+        "seed": summary.seed,
+        "iterations": summary.iterations,
+        "analysed_recoveries": summary.analysed_recoveries,
+        "excluded_recoveries": summary.excluded_recoveries,
+        "observed_matched": summary.observed_matched,
+        "observed_fraction": f"{summary.observed_fraction:.6f}",
+        "expected_fraction": f"{summary.expected_fraction:.6f}",
+        "analytic_expected_fraction": f"{summary.analytic_expected_fraction:.6f}",
+        "ratio_observed_over_expected": "" if ratio is None else f"{ratio:.6f}",
+        "null_p05": f"{summary.null_percentiles['p05']:.6f}",
+        "null_p50": f"{summary.null_percentiles['p50']:.6f}",
+        "null_p95": f"{summary.null_percentiles['p95']:.6f}",
+        "null_stdev": f"{summary.null_stdev:.6f}",
+        "observed_percentile_in_null": f"{summary.observed_percentile_in_null:.6f}",
+        "empirical_p_value": f"{summary.empirical_p_value:.6f}",
+    }
+
+
+def _null_metrics(summary: NullSummary) -> dict[str, object]:
+    ratio = summary.ratio_observed_over_expected
+    return {
+        "pre_window_seconds": summary.pre_window_seconds,
+        "post_window_seconds": summary.post_window_seconds,
+        "analysed_recoveries": summary.analysed_recoveries,
+        "excluded_recoveries": summary.excluded_recoveries,
+        "exclusion_reasons": summary.exclusion_reasons,
+        "observed_matched": summary.observed_matched,
+        "observed_fraction": summary.observed_fraction,
+        "expected_fraction": summary.expected_fraction,
+        "analytic_expected_fraction": summary.analytic_expected_fraction,
+        "ratio_observed_over_expected": ratio,
+        "null_percentiles": summary.null_percentiles,
+        "null_min": summary.null_min,
+        "null_max": summary.null_max,
+        "null_stdev": summary.null_stdev,
+        "observed_percentile_in_null": summary.observed_percentile_in_null,
+        "empirical_p_value": summary.empirical_p_value,
+        "null_matched_count_histogram": {
+            str(count): occurrences
+            for count, occurrences in summary.null_matched_count_histogram.items()
+        },
+    }
 
 
 def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir: Path) -> dict[str, object]:
@@ -217,9 +324,11 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
     original = recovery_metrics(original_matches)
     actual_invariants = _flat_invariants(chemspeed, original)
     _check_invariants(manifest.get("expected_metrics", {}), actual_invariants)
+    nulls = _run_null_variants(recoveries, events)
+    outside_interval = anchors_outside_observable_interval(recoveries, events)
 
     metrics: dict[str, object] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "research_question": (
             "To what extent can software-level laboratory actions be traced to independent "
             "evidence of their physical execution?"
@@ -239,6 +348,14 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
                     for event in rows
                     if parse_time_of_day(event.time_raw) is None
                 ),
+                "anchored_outside_observable_log_interval": len(outside_interval),
+                "anchored_outside_source_records": list(outside_interval),
+                "anchored_outside_note": (
+                    "the operation log for these experiments does not cover the labelled "
+                    "anchor instant at all, so no window of any width can match them; they "
+                    "are unanswerable for the coverage question rather than negative answers "
+                    "to it, and they are excluded from the background comparison"
+                ),
             },
             "original_window": {
                 "pre_window_seconds": 60,
@@ -250,6 +367,41 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
                 "time of day lies in the inclusive window; observability/activity proxy, "
                 "not evidence that the labelled recovery action itself was observed"
             ),
+            "background_null": {
+                "method": (
+                    "the labelled anchor is replaced by a uniform random anchor drawn "
+                    "inside the same experiment's own observable operation-log interval, "
+                    "keeping the window and that experiment's event structure fixed; "
+                    "timestamps are never pooled across experiments"
+                ),
+                "interpretation": (
+                    "a ratio above one means operation-log rows cluster near recovery "
+                    "labels more than near arbitrary instants of the same log; it remains "
+                    "temporal association and is not causal evidence"
+                ),
+                "seed": NULL_SEED,
+                "iterations": NULL_ITERATIONS,
+                "primary_variant": {
+                    "anchor_domain_mode": PRIMARY_NULL_VARIANT[0],
+                    "resampling": PRIMARY_NULL_VARIANT[1],
+                    "anchor_domain_rule": (
+                        "uniform over the instants whose full window fits inside the "
+                        "observable interval; all 74 comparable real anchors satisfy that "
+                        "condition, and the 5 excluded recoveries are anchored outside "
+                        "their experiment's observable interval, so no window can match them"
+                    ),
+                },
+                "sensitivity_variants": (
+                    "results/background_null.csv holds the interior and full_interval "
+                    "anchor domains crossed with independent and experiment_shift "
+                    "resampling; experiment_shift rotates all anchors of one experiment "
+                    "by a shared offset and so preserves repeated recoveries"
+                ),
+                "windows": [
+                    _null_metrics(nulls[(window.pre_seconds, window.post_seconds, *PRIMARY_NULL_VARIANT)])
+                    for window in WINDOWS
+                ],
+            },
         },
     }
     _write_json(results_dir / "metrics.json", metrics)
@@ -277,7 +429,47 @@ def reproduce(manifest_path: Path, raw_dir: Path, results_dir: Path, derived_dir
         ],
         sensitivity_rows,
     )
-    _write_recovery_windows(results_dir / "recovery_windows.csv", original_matches)
+    _write_csv(
+        results_dir / "background_null.csv",
+        [
+            "pre_window_seconds",
+            "post_window_seconds",
+            "anchor_domain_mode",
+            "resampling",
+            "variant_role",
+            "seed",
+            "iterations",
+            "analysed_recoveries",
+            "excluded_recoveries",
+            "observed_matched",
+            "observed_fraction",
+            "expected_fraction",
+            "analytic_expected_fraction",
+            "ratio_observed_over_expected",
+            "null_p05",
+            "null_p50",
+            "null_p95",
+            "null_stdev",
+            "observed_percentile_in_null",
+            "empirical_p_value",
+        ],
+        [
+            _null_row(
+                nulls[(window.pre_seconds, window.post_seconds, domain_mode, resampling)],
+                is_primary=(domain_mode, resampling) == PRIMARY_NULL_VARIANT,
+            )
+            for window in WINDOWS
+            for domain_mode, resampling in NULL_VARIANTS
+        ],
+    )
+    render_background_figure(
+        results_dir / BACKGROUND_FIGURE_NAME,
+        [
+            nulls[(window.pre_seconds, window.post_seconds, *PRIMARY_NULL_VARIANT)]
+            for window in WINDOWS
+        ],
+    )
+    _write_recovery_windows(results_dir / "recovery_windows.csv", original_matches, events)
     _write_transfer_observations(derived_dir / "observations.csv", chemspeed_audit)
     _write_result_checksums(results_dir)
     return metrics

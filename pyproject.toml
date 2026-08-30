@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Vivien Perrelle" }]
-dependencies = ["PyYAML>=6.0,<7"]
+dependencies = ["PyYAML>=6.0,<7", "matplotlib>=3.9,<4"]
 
 [dependency-groups]
 dev = [

@@ -29,7 +29,7 @@ The raw archive is not redistributed in this repository. Obtain it directly from
 
 This repository does not bundle the archives so the source release remains the acquisition authority. `results/recovery_windows.csv` is a derived table of temporal matches. Reuse requires CC BY 4.0 attribution to the dataset creators, the concept DOI above, and a note that the matching window and coverage definition come from this audit.
 
-The 34/79 coverage figure means: for 34 of 79 included labelled recoveries, at least one operation-log row has a parseable timestamp inside the declared inclusive window. That is an observability/activity proxy. It does not mean the recovery action was observed, and a silent window does not mean that no operator or controller intervention occurred.
+The coverage and background figures derived from these archives are defined in [`../METHODOLOGY.md`](../METHODOLOGY.md). Coverage is an observability/activity proxy: it does not mean the recovery action was observed, and a silent window does not mean that no operator or controller intervention occurred.
 
 ## Download
 
@@ -63,3 +63,4 @@ All hashes, sizes, source URLs, retrieval date, release identifiers, creators, l
 
 - `data/derived/observations.csv` contains the 60 Chemspeed transfer-endpoint comparisons. They are automated exact-decimal comparisons, not manual classifications and not independent physical measurements. Derived from Flex-Cat (CC BY 4.0).
 - `results/recovery_windows.csv` contains one row for each of the 79 included labelled recoveries, including the anchor source, window, event row references, and match classification. Derived from Batch Distillation (CC BY 4.0). A `matched` classification means log activity in the window, not observed recovery.
+- `results/background_null.csv` and `results/figures/recovery_activity_vs_background.png` contain the random-anchor background comparison for the same recoveries. Derived from Batch Distillation (CC BY 4.0); the null construction is this audit's.

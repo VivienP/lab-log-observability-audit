@@ -1,7 +1,208 @@
 {
   "batch_distillation": {
+    "background_null": {
+      "interpretation": "a ratio above one means operation-log rows cluster near recovery labels more than near arbitrary instants of the same log; it remains temporal association and is not causal evidence",
+      "iterations": 10000,
+      "method": "the labelled anchor is replaced by a uniform random anchor drawn inside the same experiment's own observable operation-log interval, keeping the window and that experiment's event structure fixed; timestamps are never pooled across experiments",
+      "primary_variant": {
+        "anchor_domain_mode": "interior",
+        "anchor_domain_rule": "uniform over the instants whose full window fits inside the observable interval; all 74 comparable real anchors satisfy that condition, and the 5 excluded recoveries are anchored outside their experiment's observable interval, so no window can match them",
+        "resampling": "independent"
+      },
+      "seed": 20260830,
+      "sensitivity_variants": "results/background_null.csv holds the interior and full_interval anchor domains crossed with independent and experiment_shift resampling; experiment_shift rotates all anchors of one experiment by a shared offset and so preserves repeated recoveries",
+      "windows": [
+        {
+          "analysed_recoveries": 74,
+          "analytic_expected_fraction": 0.17626954481692705,
+          "empirical_p_value": 9.999000099990002e-05,
+          "excluded_recoveries": 5,
+          "exclusion_reasons": {
+            "empty_anchor_domain": 2,
+            "observed_anchor_outside_anchor_domain": 3
+          },
+          "expected_fraction": 0.17672027027027026,
+          "null_matched_count_histogram": {
+            "10": 824,
+            "11": 1037,
+            "12": 1273,
+            "13": 1260,
+            "14": 1129,
+            "15": 979,
+            "16": 768,
+            "17": 563,
+            "18": 354,
+            "19": 225,
+            "2": 2,
+            "20": 148,
+            "21": 75,
+            "22": 33,
+            "23": 18,
+            "24": 6,
+            "25": 5,
+            "26": 1,
+            "4": 1,
+            "5": 41,
+            "6": 97,
+            "7": 168,
+            "8": 405,
+            "9": 588
+          },
+          "null_max": 0.35135135135135137,
+          "null_min": 0.02702702702702703,
+          "null_percentiles": {
+            "p01": 0.08108108108108109,
+            "p05": 0.10810810810810811,
+            "p25": 0.14864864864864866,
+            "p50": 0.17567567567567569,
+            "p75": 0.20270270270270271,
+            "p95": 0.25675675675675674,
+            "p99": 0.28378378378378377
+          },
+          "null_stdev": 0.04318265330835348,
+          "observed_fraction": 0.4594594594594595,
+          "observed_matched": 34,
+          "observed_percentile_in_null": 1.0,
+          "post_window_seconds": 120,
+          "pre_window_seconds": 60,
+          "ratio_observed_over_expected": 2.5999250609835367
+        },
+        {
+          "analysed_recoveries": 74,
+          "analytic_expected_fraction": 0.35484983524656516,
+          "empirical_p_value": 0.019698030196980302,
+          "excluded_recoveries": 5,
+          "exclusion_reasons": {
+            "empty_anchor_domain": 2,
+            "observed_anchor_outside_anchor_domain": 3
+          },
+          "expected_fraction": 0.3552635135135135,
+          "null_matched_count_histogram": {
+            "10": 1,
+            "13": 6,
+            "14": 7,
+            "15": 7,
+            "16": 22,
+            "17": 52,
+            "18": 101,
+            "19": 168,
+            "20": 286,
+            "21": 407,
+            "22": 577,
+            "23": 739,
+            "24": 876,
+            "25": 1015,
+            "26": 1052,
+            "27": 995,
+            "28": 854,
+            "29": 785,
+            "30": 637,
+            "31": 506,
+            "32": 344,
+            "33": 242,
+            "34": 125,
+            "35": 89,
+            "36": 48,
+            "37": 33,
+            "38": 18,
+            "39": 4,
+            "40": 2,
+            "41": 1,
+            "42": 1
+          },
+          "null_max": 0.5675675675675675,
+          "null_min": 0.13513513513513514,
+          "null_percentiles": {
+            "p01": 0.24324324324324326,
+            "p05": 0.2702702702702703,
+            "p25": 0.32432432432432434,
+            "p50": 0.35135135135135137,
+            "p75": 0.3918918918918919,
+            "p95": 0.44594594594594594,
+            "p99": 0.4864864864864865
+          },
+          "null_stdev": 0.05250672110791863,
+          "observed_fraction": 0.47297297297297297,
+          "observed_matched": 35,
+          "observed_percentile_in_null": 0.9804,
+          "post_window_seconds": 300,
+          "pre_window_seconds": 300,
+          "ratio_observed_over_expected": 1.3313299986686702
+        },
+        {
+          "analysed_recoveries": 74,
+          "analytic_expected_fraction": 0.512125855473812,
+          "empirical_p_value": 0.632936706329367,
+          "excluded_recoveries": 5,
+          "exclusion_reasons": {
+            "empty_anchor_domain": 4,
+            "observed_anchor_outside_anchor_domain": 1
+          },
+          "expected_fraction": 0.5114351351351352,
+          "null_matched_count_histogram": {
+            "23": 1,
+            "24": 4,
+            "25": 4,
+            "26": 11,
+            "27": 26,
+            "28": 50,
+            "29": 67,
+            "30": 150,
+            "31": 238,
+            "32": 357,
+            "33": 448,
+            "34": 637,
+            "35": 770,
+            "36": 908,
+            "37": 959,
+            "38": 1017,
+            "39": 1004,
+            "40": 838,
+            "41": 737,
+            "42": 570,
+            "43": 428,
+            "44": 315,
+            "45": 199,
+            "46": 116,
+            "47": 62,
+            "48": 47,
+            "49": 19,
+            "50": 10,
+            "51": 4,
+            "52": 4
+          },
+          "null_max": 0.7027027027027027,
+          "null_min": 0.3108108108108108,
+          "null_percentiles": {
+            "p01": 0.3918918918918919,
+            "p05": 0.4189189189189189,
+            "p25": 0.47297297297297297,
+            "p50": 0.5135135135135135,
+            "p75": 0.5540540540540541,
+            "p95": 0.5945945945945946,
+            "p99": 0.6351351351351351
+          },
+          "null_stdev": 0.0536943191132933,
+          "observed_fraction": 0.5,
+          "observed_matched": 37,
+          "observed_percentile_in_null": 0.3671,
+          "post_window_seconds": 600,
+          "pre_window_seconds": 600,
+          "ratio_observed_over_expected": 0.9776410841775396
+        }
+      ]
+    },
     "coverage_definition": "labelled recovery with at least one operation-log row whose parseable time of day lies in the inclusive window; observability/activity proxy, not evidence that the labelled recovery action itself was observed",
     "inclusion": {
+      "anchored_outside_note": "the operation log for these experiments does not cover the labelled anchor instant at all, so no window of any width can match them; they are unanswerable for the coverage question rather than negative answers to it, and they are excluded from the background comparison",
+      "anchored_outside_observable_log_interval": 5,
+      "anchored_outside_source_records": [
+        "batch_dist_ternary_acetone+butan-1-ol+methanol/operating_point_002/test_anormal_experiment_001::OP002TA001A001",
+        "batch_dist_ternary_acetone+butan-1-ol+methanol/operating_point_006/test_anormal_experiment_001::OP006TA001A001",
+        "batch_dist_ternary_acetone+butan-1-ol+methanol/operating_point_011/test_anormal_experiment_001::OP011TA001A001",
+        "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_001::OP014TA001A001",
+        "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_023/test_anormal_experiment_002::OP023TA002A001"
+      ],
       "excluded_source_records": [
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A002",
         "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A004"
@@ -49,5 +250,5 @@
     }
   },
   "research_question": "To what extent can software-level laboratory actions be traced to independent evidence of their physical execution?",
-  "schema_version": 1
+  "schema_version": 2
 }

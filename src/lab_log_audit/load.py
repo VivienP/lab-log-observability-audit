@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+import re
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
@@ -262,22 +263,25 @@ def _experiment_key(member: str) -> str:
 
 
 def _category(raw_property: str) -> str:
-    value = raw_property.strip().lower()
+    # Collapse runs of whitespace and underscores first. The source spells the same
+    # event several ways ("Emergency Stop" and "emergency _stop", "Changed value P702"
+    # and "changed_value_P702"), and matching the raw text misfiled some of them.
+    value = re.sub(r"[\s_]+", "_", raw_property.strip().lower())
     if value == "critical":
         return "critical"
     if value == "warning":
         return "warning"
-    if "emergency_stop" in value.replace(" ", "_"):
+    if "emergency_stop" in value:
         return "emergency_stop"
-    if value == "start process clicked":
+    if value == "start_process_clicked":
         return "start_process"
-    if value == "stop process clicked":
+    if value == "stop_process_clicked":
         return "stop_process"
-    if value == "manual mode active":
+    if value == "manual_mode_active":
         return "manual_mode"
-    if "back to automatic mode" in value:
+    if "back_to_automatic_mode" in value or value == "automatic_mode_active":
         return "automatic_mode"
-    if value.startswith(("changed value", "changed_value")):
+    if value.startswith("changed_value"):
         return "changed_value"
     return "other"
 
