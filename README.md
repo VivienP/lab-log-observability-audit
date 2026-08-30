@@ -4,7 +4,9 @@
 
 A small, reproducible audit of two public laboratory-automation datasets: a Chemspeed
 run from Flex-Cat, and expert-labelled recoveries from a batch-distillation plant. It is
-the evidence layer for a companion article, not a general observability framework.
+the evidence layer for
+[*When a Lab Command Says SUCCEEDED, What Actually Happened?*](https://vivienperrelle.com/journal/when-a-lab-command-says-succeeded),
+not a general observability framework.
 
 ## Key results
 
