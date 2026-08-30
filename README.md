@@ -3,7 +3,8 @@
 **Can software logs prove that a commanded physical action actually occurred?**
 
 A small, reproducible audit of two public laboratory-automation datasets: a Chemspeed
-run from Flex-Cat, and expert-labelled recoveries from a batch-distillation plant.
+run from Flex-Cat, and expert-labelled recoveries from a batch-distillation plant. It is
+the evidence layer for a companion article, not a general observability framework.
 
 ## Key results
 
