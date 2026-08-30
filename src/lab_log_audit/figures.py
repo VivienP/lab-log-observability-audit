@@ -108,7 +108,7 @@ def render_background_figure(path: Path, summaries: Sequence[NullSummary]) -> Pa
     axes.set_ylabel("Recoveries with ≥1 operation-log event in window")
     axes.set_xlabel("Temporal window around the recovery anchor")
     axes.set_title(
-        "Recovery-window log activity against a random-anchor background",
+        "Recovery labels with nearby log activity, against a random-anchor background",
         fontsize=11,
         loc="left",
     )
