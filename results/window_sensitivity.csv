@@ -1,0 +1,4 @@
+pre_window_seconds,post_window_seconds,matched_actions,total_actions,coverage
+60,120,34,79,0.430380
+300,300,35,79,0.443038
+600,600,37,79,0.468354

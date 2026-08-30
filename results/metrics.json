@@ -1,0 +1,53 @@
+{
+  "batch_distillation": {
+    "coverage_definition": "labelled recovery with at least one operation-log row whose parseable time of day lies in the inclusive window; observability/activity proxy, not evidence that the labelled recovery action itself was observed",
+    "inclusion": {
+      "excluded_source_records": [
+        "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A002",
+        "batch_dist_ternary_butan-1-ol+propan-2-ol+water/operating_point_014/test_anormal_experiment_002::OP014TA002A004"
+      ],
+      "excluded_without_operation_log": 2,
+      "included_with_operation_log": 79,
+      "metadata_labelled_recoveries": 81,
+      "unparseable_event_timestamps": 43
+    },
+    "original_window": {
+      "coverage": 0.43037974683544306,
+      "matched_actions": 34,
+      "post_window_seconds": 120,
+      "pre_window_seconds": 60,
+      "total_actions": 79
+    }
+  },
+  "chemspeed": {
+    "actions": {
+      "clean": {
+        "denominator": 986,
+        "fraction": 1.0,
+        "numerator": 986
+      },
+      "pairing_status_counts": {
+        "clean": 986,
+        "count_mismatch": 0,
+        "duplicate_end": 0,
+        "duplicate_start": 0,
+        "missing_end": 0,
+        "missing_start": 0
+      },
+      "total": 986
+    },
+    "transfer_endpoints": {
+      "evidence_class": "reported_value_semantics_unverified",
+      "independent_physical_measurement_established": false,
+      "reported_equals_requested": {
+        "denominator": 60,
+        "fraction": 1.0,
+        "numerator": 60
+      },
+      "skipped_incomplete_endpoints": 0,
+      "with_reported_actual_volume": 60
+    }
+  },
+  "research_question": "To what extent can software-level laboratory actions be traced to independent evidence of their physical execution?",
+  "schema_version": 1
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "retrieval_date": "2026-08-30",
+  "files": [
+    {
+      "dataset": "flexcat",
+      "dataset_name": "Dataset and code for the publication An Autonomous Lab for Data-Driven Homogeneous Catalysis",
+      "version": "v1",
+      "zenodo_record": "18930287",
+      "doi": "10.5281/zenodo.18930287",
+      "url": "https://zenodo.org/records/18930287/files/Flex_cat_data.zip?download=1",
+      "filename": "Flex_cat_data.zip",
+      "bytes": 7182559,
+      "md5": "42099be25d1e963a87d123f1cd04ad4d",
+      "sha256": "1611bf97f6efab2694050eb4c48e50084ef65362b797d7c480dacf1ea3fd3857",
+      "member_used": "Flex_cat_data/Chemspeed/JAB_Oct_11_2024_VIP2 2025-05-26 14.23.22 2025-07-05 13.30.20/Eventlog.txt",
+      "member_sha256": "dbf9a624b54ebb5a287504af4ce6cd81f4a71c784da8a2c2fdc77112026c1f3b",
+      "creators": ["Bennett, Jeffrey", "Abolhasani, Milad"],
+      "license": "CC BY 4.0 (Zenodo API metadata.license.id for record 18930287, checked 2026-08-30). Raw bytes are not redistributed here."
+    },
+    {
+      "dataset": "batch_metadata",
+      "dataset_name": "Batch Distillation Data for Developing Machine Learning Anomaly Detection Methods",
+      "version": "1.1.2",
+      "zenodo_record": "21535243",
+      "concept_doi": "10.5281/zenodo.17395543",
+      "url": "https://zenodo.org/records/21535243/files/00_Batch_Distillation_Plant_M-202210_Timeseries_Label_Anomaly_Metadata.zip?download=1",
+      "filename": "00_Batch_Distillation_Plant_M-202210_Timeseries_Label_Anomaly_Metadata.zip",
+      "bytes": 1726509,
+      "md5": "636dcb8188e5eb80f19522e244704e2c",
+      "sha256": "2fc22d8d5aba3600d13b13029c73e9142c42e8cbf36b45a4cfcbf85205bdd1cb",
+      "creators": [
+        "Arweiler, Justus",
+        "Jungjohann, Indra",
+        "Werner, Jennifer",
+        "Muraleedharan, Aparna",
+        "Schmid, Jochen",
+        "Leitte, Heike",
+        "Burger, Jakob",
+        "Münnemann, Kerstin",
+        "Bortz, Michael",
+        "Jirasek, Fabian",
+        "Hasse, Hans"
+      ],
+      "license": "CC BY 4.0"
+    },
+    {
+      "dataset": "batch_logs",
+      "dataset_name": "Batch Distillation Data for Developing Machine Learning Anomaly Detection Methods",
+      "version": "1.1.2",
+      "zenodo_record": "21535243",
+      "concept_doi": "10.5281/zenodo.17395543",
+      "url": "https://zenodo.org/records/21535243/files/07_Batch_Distillation_Plant_M-202210_Tabular_Operation_Logs.zip?download=1",
+      "filename": "07_Batch_Distillation_Plant_M-202210_Tabular_Operation_Logs.zip",
+      "bytes": 140441,
+      "md5": "b81f2af1b4b461da1e67cbba8fd58080",
+      "sha256": "c3059f961ce798f9938f7bd4fba2c3427a86f6b434774f54f22011d91bceffcf",
+      "creators": [
+        "Arweiler, Justus",
+        "Jungjohann, Indra",
+        "Werner, Jennifer",
+        "Muraleedharan, Aparna",
+        "Schmid, Jochen",
+        "Leitte, Heike",
+        "Burger, Jakob",
+        "Münnemann, Kerstin",
+        "Bortz, Michael",
+        "Jirasek, Fabian",
+        "Hasse, Hans"
+      ],
+      "license": "CC BY 4.0"
+    }
+  ],
+  "expected_metrics": {
+    "chemspeed_total_actions": 986,
+    "chemspeed_clean_actions": 986,
+    "chemspeed_transfer_endpoints_with_actual_volume": 60,
+    "chemspeed_skipped_incomplete_endpoints": 0,
+    "chemspeed_transfer_endpoints_equal_requested": 60,
+    "batch_labelled_recoveries": 79,
+    "batch_matched_recoveries_original_window": 34
+  }
+}
+
